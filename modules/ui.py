@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import tkinter as tk
 from modules.data import color1, color2, border_color, pattern, rules_text

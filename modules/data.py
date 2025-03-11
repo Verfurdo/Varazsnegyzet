@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Kezdő mátrix (0 jelöli az üres mezőket)
 initial_matrix = [
