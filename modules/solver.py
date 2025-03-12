@@ -55,7 +55,7 @@ def biztonsagos_e(matrix, sor, oszlop, szam, mintazat):
     return True # Ha a szám elhelyezése biztonságos, True-t adunk vissza.
 
 def varazs_negyzet_megoldasa(matrix, mintazat):
-    """Backtracking algoritmus a Sudoku megoldására.
+    """Backtracking algoritmus használata a megoldáshoz.
     Rekurzív függvény, ami végigmegy az üres cellákon, és megpróbálja beilleszteni a számokat 1-től 6-ig.
     Ha egy szám beillesztése biztonságos, rekurzívan meghívja önmagát a következő üres cellára.
     Ha a rekurzív hívás True-t ad vissza, akkor a megoldás megtalálható, és True-t adunk vissza.
