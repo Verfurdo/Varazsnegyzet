@@ -8,7 +8,7 @@ kezdo_matrix = [
     [5, 0, 0, 3, 0, 0]
 ]
 
-# Mintázat
+# Mintázat (. A 0 és 1 értékek jelzik, mely mezőkre vonatkoznak speciális szabályok, valamint a színek beállításához)
 mintazat = [
     [0, 1, 1, 1, 1, 0],
     [1, 0, 1, 1, 0, 1],
