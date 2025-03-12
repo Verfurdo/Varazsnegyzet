@@ -2,7 +2,7 @@ import os  # Operációs rendszerrel kapcsolatos műveletekhez (fájlok elérés
 import sys  # A Python futtatókörnyezet elérését biztosító modul
 import tkinter as tk  # Grafikus felhasználói felület (GUI) létrehozására szolgáló modul
 
-# Dinamikus útvonal beállítása a modulokhoz[1][8]
+# Dinamikus útvonal beállítása a modulokhoz
 aktualis_konyvtar = os.path.dirname(os.path.abspath(__file__)) # A jelenlegi szkript könyvtárának elérési útja
 modulok_konyvtara = os.path.join(aktualis_konyvtar, "modules") # A "modules" alkönyvtár teljes elérési útja
 sys.path.append(modulok_konyvtara) # A "modules" könyvtár hozzáadása a Python modulkeresési útvonalához
