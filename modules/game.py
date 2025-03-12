@@ -97,7 +97,7 @@ class VarazsNegyzetJatek:
             if len(set(matrix[i])) != 6 or any(matrix[i].count(n) > 1 for n in range(1, 7)):
                 return False
             if len(set(matrix[j][i] for j in range(6))) != 6 or any(
-                    (matrix[j][i] for j in range(6)).count(n) > 1 for n in range(1, 7)):
+                    list(matrix[j][i] for j in range(6)).count(n) > 1 for n in range(1, 7)):
                 return False
 
         # Színes átlók ellenőrzése
