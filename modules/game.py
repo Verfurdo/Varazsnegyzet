@@ -1,14 +1,12 @@
-# modules/game.py
-import tkinter as tk
-from modules.data import initial_matrix, solution_matrix, pattern
-from modules.ui import GameUI
-from modules.utils import create_message_window
-from modules import solver  # Import the solver module
-import copy  # Import the copy module
+import tkinter as tk # 
+from modules.data import kezdo_matrix, mintazat # 
+from modules.ui import GameUI # 
+from modules.utils import create_message_window # 
+from modules import solver # 
+import copy # 
 
 class VarazsNegyzetJatek:
     """Varázsnégyzet játék fő osztálya"""
-
     def __init__(self, master):
         self.master = master
         master.title("Varázsnégyzet Játék")
@@ -17,46 +15,48 @@ class VarazsNegyzetJatek:
         self.ui = GameUI(master)
 
         # Játék adatok inicializálása
-        self.initial_matrix = [row[:] for row in initial_matrix] #Store initial matrix
-        self.matrix = [row[:] for row in initial_matrix]
-        self.entries = {}
+        self.kezdo_matrix = [row[:] for row in kezdo_matrix] 
+        self.matrix = [row[:] for row in kezdo_matrix]
+        self.beviteli_mezok = {}
 
         # Játéktábla kirajzolása
-        self.draw_grid()
+        self.tabla_kirajzolasa()
 
         # Gombok létrehozása
-        self.ui.create_buttons(
-            check_command=self.check_solution,
-            solution_command=self.solve_and_display,  # Changed to solve_and_display
-            reset_command=self.reset_game,
-            exit_command=self.exit_game
+        self.ui.gombok_letrehozasa(
+            ellenorzes_parancs=self.megoldas_ellenorzese,
+            megfejtes_parancs=self.megoldas_megjelenitese, 
+            ujra_parancs=self.jatek_ujrainditasa,
+            kilepes_parancs=self.kilepes_a_jatekbol
         )
 
-    def draw_grid(self):
+    def tabla_kirajzolasa(self):
         """Játéktábla kirajzolása"""
-        self.entries = {}
+        self.beviteli_mezok = {}
         for i in range(6):
             for j in range(6):
                 # Cella kirajzolása
-                x1, y1 = self.ui.draw_cell(i, j,
-                    value=self.initial_matrix[i][j] if self.initial_matrix[i][j] != 0 else None)
-                # Ha a kezdeti mátrixban 0 van, akkor beviteli mezőt hozunk létre
-                if self.initial_matrix[i][j] == 0:
-                    vcmd = (self.master.register(self.validate_entry), '%P')
-                    entry = tk.Entry(self.ui.left_frame, width=2, font=("Arial", 16),
-                                    justify='center', validate='key', validatecommand=vcmd)
-                    entry.place(x=x1 + self.ui.cell_size / 2 - 10, y=y1 + self.ui.cell_size / 2 - 12)
-                    self.entries[(i, j)] = entry
-        # Tábla keretének kirajzolása
-        self.ui.draw_border()
+                x1, y1 = self.ui.cella_kirajzolasa(i, j,
+                                               value=self.kezdo_matrix[i][j] if self.kezdo_matrix[i][j] != 0 else None)
 
-    def validate_entry(self, value):
+                # Ha a kezdeti mátrixban 0 van, akkor beviteli mezőt hozunk létre
+                if self.kezdo_matrix[i][j] == 0:
+                    vcmd = (self.master.register(self.beviteli_mezo_validalasa), '%P')
+                    entry = tk.Entry(self.ui.bal_keret, width=2, font=("Arial", 16),
+                                       justify='center', validate='key', validatecommand=vcmd)
+                    entry.place(x=x1 + self.ui.cella_meret / 2 - 10, y=y1 + self.ui.cella_meret / 2 - 12)
+                    self.beviteli_mezok[(i, j)] = entry
+
+        # Tábla keretének kirajzolása
+        self.ui.tabla_keret_kirajzolasa()
+
+    def beviteli_mezo_validalasa(self, value):
         """Beviteli mező validálása"""
         if value == "":
             return True
         try:
             num = int(value)
-            if 1 <= num <= 6: # Csak 1 és 6 közötti számok engedélyezettek
+            if 1 <= num <= 6:  # Csak 1 és 6 közötti számok engedélyezettek
                 return True
             else:
                 create_message_window(self.master, "Hiba", "Csak 1 és 6 közötti számokat adhatsz meg!")
@@ -65,103 +65,93 @@ class VarazsNegyzetJatek:
             create_message_window(self.master, "Hiba", "Csak számokat adhatsz meg!")
             return False
 
-    def check_solution(self):
+    def megoldas_ellenorzese(self):
         """Megoldás ellenőrzése"""
         # Beolvassuk a beviteli mezők tartalmát
-        current_matrix = [row[:] for row in self.initial_matrix] # Use initial matrix
-        for (i, j), entry in self.entries.items():
+        aktualis_matrix = [row[:] for row in self.kezdo_matrix]
+        for (i, j), entry in self.beviteli_mezok.items():
             value = entry.get()
-            if value: # Csak a kitöltött mezőket dolgozzuk fel
+            if value:  # Csak a kitöltött mezőket dolgozzuk fel
                 try:
                     num = int(value)
-                    current_matrix[i][j] = num
+                    aktualis_matrix[i][j] = num
                 except ValueError:
                     create_message_window(self.master, "Hiba",
-                        f"A(z) {i+1}. sor {j+1}. oszlopában lévő érték nem szám!")
+                                          f"A(z) {i + 1}. sor {j + 1}. oszlopában lévő érték nem szám!")
                     return
 
         # Ellenőrizzük, hogy minden mező ki van-e töltve
-        if any(0 in row for row in current_matrix):
+        if any(0 in row for row in aktualis_matrix):
             create_message_window(self.master, "Figyelem", "Még nem töltöttél ki minden mezőt!")
             return
-        if self.is_valid_solution(current_matrix):
+
+        if self.helyes_e_a_megoldas(aktualis_matrix):
             create_message_window(self.master, "Gratulálunk!", "A megoldásod helyes!\nNyertél!")
         else:
             create_message_window(self.master, "Sajnos nem nyertél", "A megoldás nem helyes.\nPróbáld újra!")
 
-    def is_valid_solution(self, matrix):
+    def helyes_e_a_megoldas(self, matrix):
+        """Ellenőrzi, hogy a megadott mátrix helyes megoldás-e."""
         # Sorok és oszlopok ellenőrzése
         for i in range(6):
             if len(set(matrix[i])) != 6 or any(matrix[i].count(n) > 1 for n in range(1, 7)):
                 return False
-            if len(set(matrix[j][i] for j in range(6))) != 6 or any((matrix[j][i] for j in range(6)).count(n) > 1 for n in range(1, 7)):
+            if len(set(matrix[j][i] for j in range(6))) != 6 or any(
+                    (matrix[j][i] for j in range(6)).count(n) > 1 for n in range(1, 7)):
                 return False
 
         # Színes átlók ellenőrzése
-        diag1 = []
-        diag2 = []
+        atlo1 = []
+        atlo2 = []
         for i in range(6):
             for j in range(6):
-                if pattern[i][j] == 1:
+                if mintazat[i][j] == 1:
                     if i == j:
-                        diag1.append(matrix[i][j])
+                        atlo1.append(matrix[i][j])
                     if i + j == 5:
-                        diag2.append(matrix[i][j])
-        if len(set(diag1)) != len(diag1) or len(set(diag2)) != len(diag2) or len(diag1) != len(set(diag1)) or len(diag2) != len(set(diag2)):
+                        atlo2.append(matrix[i][j])
+
+        if len(set(atlo1)) != len(atlo1) or len(set(atlo2)) != len(atlo2) or len(atlo1) != len(set(atlo1)) or len(
+                atlo2) != len(set(atlo2)):
             return False
+
         return True
 
-
-    def solve_and_display(self):
-        """Solves the puzzle and displays the solution."""
-        matrix_copy = copy.deepcopy(self.initial_matrix)
-        if solver.solve_sudoku(matrix_copy, pattern):
+    def megoldas_megjelenitese(self):
+        """Megoldja a rejtvényt, és megjeleníti a megoldást."""
+        matrix_copy = copy.deepcopy(self.kezdo_matrix)
+        solved_matrix = solver.megold(matrix_copy) 
+        if solved_matrix:
             # Display the solved matrix
-            self.display_solution(matrix_copy)
+            self.megoldas_kirajzolasa(solved_matrix)
         else:
             create_message_window(self.master, "Sajnálom", "Nem található megoldás.")
 
-
-    def display_solution(self, solved_matrix):
-        """Displays the solved matrix on the grid."""
+    def megoldas_kirajzolasa(self, solved_matrix):
+        """Megjeleníti a megoldott mátrixot a táblán."""
         # Clear existing entries
-        for (i, j), entry in self.entries.items():
+        for (i, j), entry in self.beviteli_mezok.items():
             entry.destroy()
-        self.ui.canvas.delete("all")
+
+        self.ui.vaszon.delete("all")
 
         # Draw the solved matrix on the canvas
         for i in range(6):
             for j in range(6):
-                self.ui.draw_cell(i, j, value=solved_matrix[i][j])
+                self.ui.cella_kirajzolasa(i, j, value=solved_matrix[i][j])
 
-        self.ui.draw_border()  # Redraw the border
+        self.ui.tabla_keret_kirajzolasa()  # Redraw the border
 
-    def show_solution(self):
-        """Megoldás megjelenítése"""
-        # Először töröljük a beviteli mezőket
-        for (i, j), entry in self.entries.items():
-            entry.destroy()
-
-        self.ui.canvas.delete("all") # Töröljük a canvas tartalmát
-
-        # Kirajzoljuk a megoldást
-        for i in range(6):
-            for j in range(6):
-                self.ui.draw_cell(i, j, value=solution_matrix[i][j])
-
-        # Tábla keretének kirajzolása
-        self.ui.draw_border()
-
-    def reset_game(self):
+    def jatek_ujrainditasa(self):
         """Játék újraindítása"""
         # Töröljük a beviteli mezőket
-        for (i, j), entry in self.entries.items():
+        for (i, j), entry in self.beviteli_mezok.items():
             entry.destroy()
 
-        self.ui.canvas.delete("all") # Töröljük a canvas tartalmát
-        self.matrix = [row[:] for row in self.initial_matrix] # Visszaállítjuk a kezdeti állapotot
-        self.draw_grid() # Újrarajzoljuk a táblát
+        self.ui.vaszon.delete("all")  # Töröljük a canvas tartalmát
+        self.matrix = [row[:] for row in self.kezdo_matrix]  # Visszaállítjuk a kezdeti állapotot
+        self.tabla_kirajzolasa()  # Újrarajzoljuk a táblát
 
-    def exit_game(self):
+    def kilepes_a_jatekbol(self):
         """Kilépés a játékból"""
         self.master.destroy()
