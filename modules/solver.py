@@ -20,18 +20,19 @@ def biztonsagos_e(matrix, sor, oszlop, szam, minta):
         return False
 
     # Átlók ellenőrzése, ha a cella a mintában szerepel
-    if minta[sor][oszlop] == 1:
-        # Az átlók bejárása
-        elso_atlo = []  # Bal felső -> jobb alsó
-        masodik_atlo = []  # Jobb felső -> bal alsó
-
+if minta[sor][oszlop] == 1:
+    # Bal felső -> jobb alsó átló ellenőrzése
+    if sor == oszlop:
         for i in range(6):
-            for j in range(6):
-                if minta[i][j] == 1:  # Csak a minta szerinti cellákra vizsgálunk
-                    if i == j:
-                        elso_atlo.append(matrix[i][j])
-                    if i + j == 5:
-                        masodik_atlo.append(matrix[i][j])
+            if minta[i][i] == 1 and matrix[i][i] == szam:
+                return False
+
+    # Jobb felső -> bal alsó átló ellenőrzése
+    if sor + oszlop == 5:
+        for i in range(6):
+            j = 5 - i  # Másik átló index számítása
+            if minta[i][j] == 1 and matrix[i][j] == szam:
+                return False
 
         # Átmeneti másolat készítése a rekurzió miatt
         temp_elso_atlo = elso_atlo[:]
