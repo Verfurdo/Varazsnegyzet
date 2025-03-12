@@ -1,3 +1,5 @@
+# main.py: Inicializálja a játék felületét és meghívja a modulokat.
+
 import os  # Operációs rendszerrel kapcsolatos műveletekhez (fájlok elérési útjának kezelése)
 import sys  # A Python futtatókörnyezet elérését biztosító modul
 import tkinter as tk  # Grafikus felhasználói felület (GUI) létrehozására szolgáló modul

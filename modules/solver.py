@@ -1,69 +1,67 @@
-# modules/solver.py
-import copy
+import copy  # Másolat készítéséhez szükséges modul
 
-def find_empty_cell(matrix):
-    """Finds the first empty cell (0) in the matrix."""
+def ures_cella_keresese(matrix):
+    """Megkeresi az első üres (0 értékű) cellát a mátrixban."""
     for i in range(6):
         for j in range(6):
             if matrix[i][j] == 0:
-                return (i, j)
-    return None
+                return (i, j)  # Az üres cella sor- és oszlopindexének visszaadása
+    return None  # Ha nincs több üres cella, visszatér None értékkel
 
-def is_safe(matrix, row, col, num, pattern):
-    """Checks if placing num at (row, col) is safe according to the rules."""
-    # Row check
-    if num in matrix[row]:
+def biztonsagos_e(matrix, sor, oszlop, szam, minta):
+    """Ellenőrzi, hogy a szám elhelyezhető-e a megadott cellába a szabályok szerint."""
+    
+    # Sor ellenőrzése – ha a szám már szerepel a sorban, nem helyezhető el
+    if szam in matrix[sor]:
         return False
 
-    # Column check
-    if num in (matrix[i][col] for i in range(6)):
+    # Oszlop ellenőrzése – ha a szám már szerepel az oszlopban, nem helyezhető el
+    if szam in (matrix[i][oszlop] for i in range(6)):
         return False
 
-     # Átlók ellenőrzése (csak a releváns átlókat)
-    if pattern[row][col] == 1:
-        # Ellenőrizzük, hogy a szám szerepel-e a megfelelő átlóban
-        diag1 = []
-        diag2 = []
+    # Átlók ellenőrzése, ha a cella a mintában szerepel
+    if minta[sor][oszlop] == 1:
+        # Az átlók bejárása
+        elso_atlo = []  # Bal felső -> jobb alsó
+        masodik_atlo = []  # Jobb felső -> bal alsó
 
         for i in range(6):
             for j in range(6):
-                if pattern[i][j] == 1:
+                if minta[i][j] == 1:  # Csak a minta szerinti cellákra vizsgálunk
                     if i == j:
-                        diag1.append(matrix[i][j])
+                        elso_atlo.append(matrix[i][j])
                     if i + j == 5:
-                        diag2.append(matrix[i][j])
+                        masodik_atlo.append(matrix[i][j])
 
-        #Azért kell kivenni a num-ot, hogy a rekurzió működjön
-        temp_diag1 = diag1[:]
-        if row == col:
-            if num in temp_diag1:
-                if temp_diag1.count(num) > 0:
-                     return False
+        # Átmeneti másolat készítése a rekurzió miatt
+        temp_elso_atlo = elso_atlo[:]
+        if sor == oszlop and szam in temp_elso_atlo:
+            if temp_elso_atlo.count(szam) > 0:
+                return False
 
-        temp_diag2 = diag2[:]
+        temp_masodik_atlo = masodik_atlo[:]
+        if sor + oszlop == 5 and szam in temp_masodik_atlo:
+            if temp_masodik_atlo.count(szam) > 0:
+                return False
 
-        if row + col == 5:
-            if num in temp_diag2:
-                if temp_diag2.count(num) > 0:
-                    return False
+    return True  # Ha a szám elhelyezhető, visszatér True értékkel
 
-    return True
+def sudoku_megoldas(matrix, minta):
+    """Backtracking algoritmus a Sudoku megoldására."""
+    
+    ures_cella = ures_cella_keresese(matrix)
+    if not ures_cella:
+        return True  # Ha nincs több üres cella, a feladvány megoldódott
 
-def solve_sudoku(matrix, pattern):
-    """Solves the Sudoku puzzle using backtracking."""
-    empty_cell = find_empty_cell(matrix)
-    if not empty_cell:
-        return True  # No more empty cells, puzzle solved
+    sor, oszlop = ures_cella  # Az üres cella koordinátái
 
-    row, col = empty_cell
+    for szam in range(1, 7):  # Lehetséges számok 1-től 6-ig
+        if biztonsagos_e(matrix, sor, oszlop, szam, minta):
+            matrix[sor][oszlop] = szam  # Szám beillesztése
 
-    for num in range(1, 7):
-        if is_safe(matrix, row, col, num, pattern):
-            matrix[row][col] = num
+            if sudoku_megoldas(matrix, minta):  
+                return True  # Ha sikerült megoldani, visszatérünk
 
-            if solve_sudoku(matrix, pattern):
-                return True  # Solution found
+            matrix[sor][oszlop] = 0  # Backtracking: visszaállítjuk az üres állapotot
 
-            matrix[row][col] = 0  # Backtrack
-
-    return False  # No solution found
+    return False  # Ha nem található megoldás, visszatér False értékkel
