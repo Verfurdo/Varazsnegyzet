@@ -49,12 +49,12 @@ A játék elindítása után a következő lehetőségek állnak rendelkezésre:
 
 ## Fájlok magyarázata
 
--   `start.py`: A program belépési pontja, útvonalakat tölt be és elindítja a programot.
+-   `start.py`: Elindítja a programot dinamikus útvonal beállítása hogy bárhonnan futtatható legyen.
 -   `main.py`: Inicializálja a játék felületét és meghívja a modulokat.
 -   `modules/`:
-    -   `game.py`: A játék fő logikáját tartalmazza a `VarazsNegyzetJatek` osztállyal.
-    -   `ui.py`: A felhasználói felületet kezeli a `GameUI` osztály segítségével.
-    -   `data.py`: A játék adatait tárolja (kezdő mátrix, megoldás mátrix, színek, szabályok).
+    -   `game.py`: A játék fő logikáját tartalmazza.
+    -   `ui.py`: A grafikus felhasználói felületet kezeli.
+    -   `data.py`: A játék adatait tárolja (kezdő mátrix, mintázat mátrix, színek, szabályok).
     -   `utils.py`: Segédfunkciókat tartalmaz (pl. üzenetablakok megjelenítése).
     -   `solver.py`: A játék automatikus megoldását végző algoritmus.
 
