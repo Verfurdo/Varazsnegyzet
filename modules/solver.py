@@ -27,7 +27,7 @@ def biztonsagos_e(matrix, sor, oszlop, szam, mintazat):
             return False # Nem biztonságos, mert ütközik egy már meglévő számmal.
 
     # Színes mezők átlóinak ellenőrzése
-    if mintazat[sor][oszlop] == 1: # Ha a cella a színes mintázathoz tartozik (1-es érték jelzi).
+    if mintazat[sor][oszlop] == 1: # Ha a cella a színes mintázathoz tartozik.
         # Főátló ellenőrzése
         if sor == oszlop: # Ha a cella a főátlón van.
             for i in range(6): # Végigmegyünk a főátló összes celláján.
